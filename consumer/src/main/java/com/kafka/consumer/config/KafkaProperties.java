@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 public class KafkaProperties {
     public static final String CONSUMER_GROUP_ID = "testGroup";
+    public static final String TOPIC = "CafeTopic";
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootStrapServers;
