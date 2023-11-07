@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kafka Messages</title>
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+</head>
+<body>
+<h1>Kafka Messages</h1>
+<form class="form-inline">
+  <div class="form-group">
+    <label for="connect">WebSocket connection:</label>
+    <button id="connect" class="btn btn-default" type="submit">Connect</button>
+    <button id="disconnect" class="btn btn-default" type="submit" disabled="disabled">Disconnect
+    </button>
+  </div>
+</form>
+<ul id="messageList"></ul>
+
+<script>
+  const stompClient = new StompJs.Client({
+    brokerURL: 'ws://localhost:10002/cafe-test'
+  });
+  stompClient.onConnect = (frame) => {
+    console.log('Connected: ' + frame);
+    stompClient.subscribe('/topic/cafe', (message) => {
+      showMessage(JSON.parse(message.body));
+      console.log(message);
+    });
+  };
+  stompClient.onWebSocketError = (error) => {
+    console.error('Error with websocket', error);
+  };
+
+  stompClient.onStompError = (frame) => {
+    console.error('Broker reported error: ' + frame.headers['message']);
+    console.error('Additional details: ' + frame.body);
+  };
+
+
+  function showMessage(message) {
+    console.log("message", message);
+    var messageList = document.getElementById("messageList");
+    var li = document.createElement("li");
+    li.textContent = message;
+    messageList.appendChild(li);
+
+  }
+  function connect() {
+    stompClient.activate();
+  }
+
+  function disconnect() {
+    stompClient.deactivate();
+    console.log("Disconnected");
+  }
+
+  $(function () {
+    $("form").on('submit', (e) => e.preventDefault());
+    $( "#connect" ).click(() => connect());
+    $( "#disconnect" ).click(() => disconnect());
+  });
+</script>
+</body>
+</html>
